@@ -1,0 +1,4 @@
+receivepoll arg;UID;Facts;now
+(UID Facts)←(2⊃arg).(UID Facts)
+now←'hh:mm:ss'(1200⌶)1 ⎕DT'J'
+⎕←UID,' ',now,' Workspace Used: ',,'LCI15' ⎕FMT Facts.Value.Used

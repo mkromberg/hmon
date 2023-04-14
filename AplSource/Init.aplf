@@ -1,0 +1,35 @@
+ ok←Init
+ ⍝ Example: init '127.0.0.1' 7502 '/log/file/name'
+
+
+ allfacts←'Host' 'AccountInformation' 'Workspace'
+
+ logging←0
+ uidcnt←cidcnt←0    ⍝ request and connection counters
+ monitortid←¯1      ⍝ queue monitor thread not running
+ conns←0 4⍴0        ⍝ id connection host port
+ queue←0 3⍴0        ⍝ cid uid callbackfn
+ token←⎕TALLOC 1 'HMON Client'
+
+ ⍝ Establish connection
+ ⎕EX 'iConga'       ⍝ Let's start again
+ :If 9≠⎕NC 'Conga'
+      'Conga'⎕CY'conga'
+ :EndIf
+ iConga←Conga.Init'HMONCLIENT'
+ {}iConga.SetProp'' 'EventMode' 1
+ magic←iConga.Magic 'RIDE' ⍝ /// will become HMON
+
+ :If 0≠logtn←2=⎕NC'logfile'
+     :Trap 0
+         logtn←logfile ⎕NTIE 0
+     :Else
+         :Trap 0
+             logtn←logfile ⎕NCREATE 0
+         :Else
+             ('Unable to create ',logfile)⎕SIGNAL 22⊣logtn←0
+         :EndTrap
+     :EndTrap
+ :EndIf
+
+ ok←0

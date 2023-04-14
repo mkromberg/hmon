@@ -1,0 +1,24 @@
+ ok←Connect(host port);d;cid;sp;z;up
+
+ d←iConga.Clt '' host port 'BlkText' 32768 ('Magic' magic)
+ :If (⊃d)≢0
+     ('Unable to connect to ',host,':',(⍕port),' - ',3⊃d) ⎕SIGNAL 11
+ :EndIf
+ :Hold 'hmon'
+     'Maximum number of connections reached' ⎕SIGNAL (999<≢conns)/11
+     cid←⊃(⍳1+≢conns)~conns[;1]
+     conns⍪←cid(2⊃d)host port
+ :EndHold
+
+ :If (sp←'SupportedProtocols=2')≡z←cid Wait 0
+ :AndIf 0=⊃z←cid Send sp
+ :AndIf 'UsingProtocol=2'≡up←cid Wait 0
+ :AndIf 0=⊃z←cid Send up
+     Log'Connected ',⊃'YYYY-MM-DD hh:mm:ss'(1200⌶)1 ⎕DT'J'
+
+ :Else
+     :Hold 'hmon'
+         conns←(conns[;1]≠cid)⌿conns
+     :EndHold
+     ('Handshake Failed: ',⍕z)⎕SIGNAL 11
+ :EndIf

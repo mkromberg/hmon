@@ -1,0 +1,14 @@
+{r}←{cbinfo} GetFacts (cid facts);m;ns
+:If 0=⎕NC 'cbinfo' ⋄ cbinfo←'' 0 ⋄ :EndIf ⍝ do not call back
+
+facts←,⊆facts
+facts,←(0=≢facts)/allfacts
+:If ∨/m←~facts∊allfacts,⍳≢allfacts
+    ('Unknown facts: ',,⍕m/facts) ⎕SIGNAL 11
+:EndIf
+
+(ns←⎕NS '').Facts←facts
+r←cbinfo SendWait cid ('GetFacts' ns)
+:If (0=≢cbinfo) ⍝ No callback fn
+    r←r[2].Facts
+:EndIf

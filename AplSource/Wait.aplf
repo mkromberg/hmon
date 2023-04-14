@@ -1,0 +1,15 @@
+r←cid Wait uid;type;con;id
+⍝ Wait for the right kind of token to be put
+
+con←uid=0                  ⍝ Not an identified transation?
+(type id)←(1+con)⊃¨('uid' 'cid') (uid cid)
+
+:If uid=0 ⍝ If not a normal identified request, add a dummy queue item
+   :Hold 'hmon'
+        queue⍪←cid 0 ''
+   :EndHold
+:EndIf
+
+runmonitor ⍬
+r←⊃⎕TGET type GetToken id
+Log 'GET ',(⍕id),': ',r

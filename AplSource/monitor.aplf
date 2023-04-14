@@ -1,0 +1,60 @@
+ monitor dummy;z;rc;con;event;data;ns;i;cid;uid;type;tkn;fn;m;removed
+ ⍝ While there is anything in the queue, monitor Conga messages
+ ⍝ and release functions waiting on ⎕TPUT
+
+ :While 0≠≢queue
+     :If 0=⊃z←iConga.Wait'.' 5000
+         (rc con event data)←4↑z
+
+         :If event≡'Timeout' ⋄ :Continue ⋄ :EndIf
+
+         :If (≢conns)<i←conns[;2]⍳⊂con
+             Log'Message received on unexpected connection'
+             Log'===> ',,⍕z
+             :Continue
+         :Else
+             cid←conns[i;1]
+         :EndIf
+
+         :Select event
+         :Case 'Block'
+             uid←0
+             :Trap 11 ⍝ Might be handshake and not JSON data
+                 data←0 ⎕JSON data
+                 tkn←'uid'GetToken uid←2⊃2⊃⎕VFI data[2].UID
+             :Else
+                 tkn←'cid'GetToken cid
+             :EndTrap
+
+             :Hold 'hmon'
+                 :If (≢queue)<i←queue[;1 2]⍳cid uid
+                     Log'Unqueued message received'
+                     Log'===> ',,⍕z
+                 :ElseIf 0≠≢fn←⊃queue[i;3] ⍝ Callback fn
+                     (⍎fn)&data            ⍝ Run it in a separate thread
+                 :Else
+                     queue←(i≠⍳≢queue)⌿queue
+                     data ⎕TPUT tkn ⍝ welease woger!
+                 :EndIf
+             :EndHold
+
+         :Case 'Closed'
+             Log 'CLOSED: ',con
+             :Hold 'hmon'
+                 conns←(cid≠conns[;1])⌿conns
+                 removed←(m←cid=queue[;1])⌿queue
+                 queue←(~m)⌿queue
+             :EndHold
+             Log '===> ',(≢removed),' queue items removed'
+             :For uid :In removed[;2]~0
+                  'CONNECTION CLOSED' ⎕TPUT 'uid' GetToken uid
+             :EndFor
+         :Else
+             ∘∘∘
+         :EndSelect
+
+     :Else
+         Log'Conga.Wait failed: ',⍕z
+         ∘∘∘
+     :EndIf
+ :EndWhile

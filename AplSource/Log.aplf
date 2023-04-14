@@ -1,0 +1,8 @@
+ Log x
+
+ :If logging>0
+     ⎕←('hh:mm:ss'(1200⌶)1 ⎕DT'J'),' ',x
+     :If logtn∊⎕NNUMS
+         (utf8 x,nl)⎕NAPPEND logtn
+     :EndIf
+ :EndIf
