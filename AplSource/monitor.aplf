@@ -1,4 +1,4 @@
- monitor dummy;z;rc;con;event;data;ns;i;cid;uid;type;tkn;fn;m;removed
+ monitor dummy;z;rc;con;event;data;ns;i;cid;uid;type;tkn;fn;m;removed;done;cb
  ⍝ While there is anything in the queue, monitor Conga messages
  ⍝ and release functions waiting on ⎕TPUT
 
@@ -27,14 +27,21 @@
              :EndTrap
 
              :Hold 'hmon'
+                 cb←0
                  :If (≢queue)<i←queue[;1 2]⍳cid uid
                      Log'Unqueued message received'
                      Log'===> ',,⍕z
-                 :ElseIf 0≠≢fn←⊃queue[i;3] ⍝ Callback fn
+                     :Continue
+                 :ElseIf cb←(0≠≢fn←⊃queue[i;3])∧'Subscriptions'≢⊃data ⍝ Callback fn (ignore for "Subscribe" call)
                      (⍎fn)&data            ⍝ Run it in a separate thread
-                 :Else
+                 :EndIf
+
+                 done←data[2].{6::0 ⋄ Poll=0}⍬  ⍝ Polling done
+                 :If done∨0=≢fn            ⍝   ... or no callback fn
                      queue←(i≠⍳≢queue)⌿queue
-                     data ⎕TPUT tkn ⍝ welease woger!
+                 :EndIf
+                 :If ~cb                   ⍝ No callback done, return result via TPUT
+                     data ⎕TPUT tkn
                  :EndIf
              :EndHold
 

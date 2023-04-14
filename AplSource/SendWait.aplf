@@ -1,19 +1,19 @@
  r←{cbinfo}SendWait(cid u);i;uid;payload;z;fn;poll
  :If 0=⎕NC'cbinfo' ⋄ cbinfo←'' 0 ⋄ :EndIf
  (fn poll)←cbinfo
-
- ('Callback function ',fn,' not found')⎕SIGNAL(3≠⎕NC fn)/6
+ :If 0≠≢fn
+     ('Callback function ',fn,' not found')⎕SIGNAL(3≠⎕NC fn)/6
+ :EndIf
 
  :Hold 'hmon'
      :If (2=≢u)∧326=⎕DR u
          u[2].UID←⍕cid,uid←⊃(⍳1+≢queue)~queue[;1]
-         u[2].Poll←poll
          payload←⎕JSON u
      :Else
          uid←0 ⋄ payload←u
      :EndIf
      'Queue is full'⎕SIGNAL(uid>999)/11
-     queue←((queue[;1 2]∨.≠cid uid)⌿queue)⍪cid uid fn
+     queue⍪←cid uid fn ⍝ Don't use callback fn for result of subscribe
  :EndHold
 
  :If 0≠⊃z←cid Send payload
@@ -21,7 +21,7 @@
      ∘∘∘
  :EndIf
 
- :If 0=≢fn
+ :If (0=≢fn)∨'Subscribe'≡⊃u
      r←cid Wait uid
  :Else
      r←runmonitor ⍬

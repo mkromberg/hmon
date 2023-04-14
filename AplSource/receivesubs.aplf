@@ -1,0 +1,9 @@
+ receivesubs arg;UID;Facts;now
+ :If 'Notification'≡⊃arg
+     UID←(2⊃arg).UID
+     now←'hh:mm:ss'(1200⌶)1 ⎕DT'J'
+     ⎕←UID,' ',now,' Notification: ',(2⊃arg).Event
+ :Else
+     ⎕←⎕JSON arg
+     ∘∘∘
+ :EndIf

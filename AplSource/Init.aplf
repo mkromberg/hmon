@@ -3,6 +3,7 @@
 
 
  allfacts←'Host' 'AccountInformation' 'Workspace'
+ allsubs←'WorkspaceCompaction' 'WorkspaceResize' 'All'
 
  logging←0
  uidcnt←cidcnt←0    ⍝ request and connection counters

@@ -1,0 +1,14 @@
+ {r}←{on}Subscribe(cid facts fn);m;ns
+ :If 0=⎕NC'on' ⋄ on←1 ⋄ :EndIf ⍝ 0 to unsubscribe
+
+ facts←,⊆facts
+ facts,←(0=≢facts)/⊂'All'
+ :If ∨/m←~facts∊allsubs,⍳≢allsubs
+     ('Unknown facts: ',,⍕m/facts)⎕SIGNAL 11
+ :EndIf
+
+ (ns←⎕NS'')⍎(∊facts,¨'←'),⍕on
+ r←(fn 0) SendWait cid('Subscribe'ns)
+ :If 'Subscriptions'≡⊃r
+     r←r[2]
+ :EndIf
