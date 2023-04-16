@@ -4,8 +4,10 @@
 
  allfacts←'Host' 'AccountInformation' 'Workspace'
  allsubs←'WorkspaceCompaction' 'WorkspaceResize' 'All'
+ listener←''        ⍝ not listening (yet)
+ onconnection←''    ⍝ nothing specified to do on connection
 
- logging←0
+ logging←1
  uidcnt←cidcnt←0    ⍝ request and connection counters
  monitortid←¯1      ⍝ queue monitor thread not running
  conns←0 4⍴0        ⍝ id connection host port
