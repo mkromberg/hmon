@@ -1,0 +1,4 @@
+Demo
+Init
+onconnection←'DemoConnect'
+Listen 'localhost' 7000

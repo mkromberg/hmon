@@ -1,0 +1,4 @@
+DemoConnect cid
+'DemoReceive' 2000 GetFacts cid 'Workspace'
+⍝ 'DemoReceive' 2000 Subscribe cid 'WorkspaceCompaction'
+⍝ 'DemoReceive' 2000 GetLastKnownState cid 'WorkspaceCompaction'

@@ -1,0 +1,21 @@
+ DemoApplication dummy;framework;z;a
+ ⎕PROFILE'start' 'coverage' ⋄ 112⌶1 ⍝ Enable "breadcrumbs"
+ ⍝ (This will be easier in the final v19.0)
+
+ framework←2=⊃2250⌶⍬
+
+ ⎕USING←',System.Runtime',framework/'.dll'
+ :Repeat
+     :Select ?3
+     :Case 1
+         (System.Threading.Tasks.Task.Delay 2000).Wait ⍬
+     :Case 2
+         z←⎕DL 2
+     :Case 3
+         z←+/10000000?10000000
+     :Case 4
+         z←⎕WA
+     :Case 5
+         a←(?1E7)⍴⎕A
+     :EndSelect
+ :EndRepeat

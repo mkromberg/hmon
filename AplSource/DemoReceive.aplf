@@ -1,0 +1,19 @@
+ DemoReceive arg;UID;Facts;now;data;TS
+ ⍝ Receive all types of callbacks
+
+ data←2⊃arg
+ now←'hh:mm:ss'(1200⌶)1 ⎕DT'J'
+
+ :Select ⊃arg
+ :Case 'Notification'
+     (UID Event)←(2⊃arg).(UID Event)
+     ⎕←UID,' ',now,' Notification ',Event
+
+ :Case 'Facts'
+     (UID Facts)←(2⊃arg).(UID Facts)
+     ⎕←UID,' ',now,' Workspace Used: ',,'LCI15'⎕FMT Facts.Value.Used
+
+ :Case 'LastKnownState'
+    (UID TS)←(2⊃arg).(UID TS)
+     ⎕←UID,' ',TS,' LastKnownState: ',1 ⎕JSON arg[2]
+ :EndSelect
