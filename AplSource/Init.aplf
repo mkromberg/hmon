@@ -1,4 +1,4 @@
- ok←Init
+ {ok}←Init
  ⍝ Example: init '127.0.0.1' 7502 '/log/file/name'
 
 

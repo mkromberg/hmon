@@ -1,19 +1,29 @@
- DemoReceive arg;UID;Facts;now;data;TS
+ DemoReceive arg;UID;Facts;data;TS;event;ts;cid;wsused;cpuused;compactions;ai;ws;line;fn;code;txt
  ⍝ Receive all types of callbacks
 
- data←2⊃arg
- now←'hh:mm:ss'(1200⌶)1 ⎕DT'J'
+ (event data)←arg
+ ts←1 ⎕DT'J'
+ cid←2 1⊃⎕VFI UID←data.UID
+ :If (≢demodata)≠≢conns
+     demodata←(demodata[;1]∊conns[;1])⌿demodata
+  :EndIf
 
- :Select ⊃arg
+ :Select event
+
  :Case 'Notification'
-     (UID Event)←(2⊃arg).(UID Event)
-     ⎕←UID,' ',now,' Notification ',Event
+     Log UID,,' Notification ',data.Event
 
  :Case 'Facts'
-     (UID Facts)←(2⊃arg).(UID Facts)
-     ⎕←UID,' ',now,' Workspace Used: ',,'LCI15'⎕FMT Facts.Value.Used
+     (ws ai)←data.(Facts[Facts.Name⍳'Workspace' 'AccountInformation'].Value)
+     (wsused compactions)←ws.(Used Compactions)
+     cpuused←ai.ComputeTime
+     DemoUpdate cid('ts' 'wsused' 'cpuused' 'compactions')(ts wsused cpuused compactions)
+     'DemoReceive' 2000 GetLastKnownState cid ⍝ Request last known state
 
  :Case 'LastKnownState'
-    (UID TS)←(2⊃arg).(UID TS)
-     ⎕←UID,' ',TS,' LastKnownState: ',1 ⎕JSON arg[2]
+     :If 0≠data.⎕NC'Activity'
+         (code fn line)←data.(Activity.code,Location.(Function Line))
+         txt←(⍕code),': ',fn,'[',(⍕line),']'
+         DemoUpdate cid('ts' 'laststate')(ts txt)
+     :EndIf
  :EndSelect

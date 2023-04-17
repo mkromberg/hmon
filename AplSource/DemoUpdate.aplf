@@ -1,0 +1,10 @@
+DemoUpdate (cid facts values)
+⍝ Update and refresh the hmon grid
+
+demodata[demodata[;1]⍳cid;democols⍳facts]←values
+values←demodata
+
+values[;2]←'hh:mm:ss'(1200⌶)values[;2] ⍝ Format timestamps
+values[;5 6]←,¨'CI12'∘⎕FMT¨values[;5 6]
+
+hmongrid.Values←values

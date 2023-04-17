@@ -1,4 +1,16 @@
-Demo
+Demo;size
+⍝ HMON demo application
+
+democols  ←'id' 'ts' 'host' 'port' 'cpuused' 'wsused' 'laststate' 'compactions'
+demoprotos←  0    0      ''      0         0        0          ''             0
+demodata←(0,≢democols)⍴demoprotos
+
+hmonform←⎕NEW 'Form' (('Coord' 'Pixel')('Size' (size←400 600)))
+hmongrid←hmonform.⎕NEW 'Grid' (('Posn' (10 10))('Size' (size-20 20))('Values' demodata)('ColTitles' democols))
+hmongrid.TitleWidth←0
+hmongrid.CellWidths←30 60 50 50 65 65 200 70
+hmongrid.ColTitleAlign←'Right' 'Left' 'Left' 'Right' 'Centre' 'Centre' 'Left' 'Right'
+
 Init
 onconnection←'DemoConnect'
 Listen 'localhost' 7000

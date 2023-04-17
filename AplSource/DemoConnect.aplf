@@ -1,4 +1,15 @@
-DemoConnect cid
-'DemoReceive' 2000 GetFacts cid 'Workspace'
-⍝ 'DemoReceive' 2000 Subscribe cid 'WorkspaceCompaction'
-⍝ 'DemoReceive' 2000 GetLastKnownState cid 'WorkspaceCompaction'
+DemoConnect cid;i
+⍝ On connection, set up all subscriptions
+
+⍝ First expand the demodata table to receive values
+:If (≢demodata)<i←demodata[;1]⍳cid
+    demodata⍪←demoprotos
+:EndIf
+
+demodata[i;democols⍳'id' 'host' 'port']←3↑conns[conns[;1]⍳cid;1 3 4]
+hmongrid.Values←demodata
+
+⍝ Now set up the subscriptions
+'DemoReceive' 2000 GetFacts cid ('AccountInformation' 'Workspace')
+Subscribe cid 'WorkspaceCompaction' 'DemoReceive'
+'DemoReceive' 2000 GetLastKnownState cid
