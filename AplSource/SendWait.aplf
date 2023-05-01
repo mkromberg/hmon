@@ -21,7 +21,7 @@
      ∘∘∘
  :EndIf
 
- :If (0=≢fn)∨'Subscribe'≡⊃u
+ :If 0=≢fn ⍝ No callback function
      r←cid Wait uid
  :Else
      r←runmonitor ⍬

@@ -37,7 +37,7 @@
                      Log'Unqueued message received'
                      Log'===> ',,⍕z
                      :Continue
-                 :ElseIf cb←(0≠≢fn←⊃queue[i;3])∧'Subscriptions'≢⊃data ⍝ Callback fn (ignore for "Subscribe" call)
+                 :ElseIf cb←(0≠≢fn←⊃queue[i;3])∧'Subscribe'≢⊃data ⍝ Callback fn (ignore for "Subscribe" call)
                      (⍎fn)&data            ⍝ Run it in a separate thread
                  :EndIf
 

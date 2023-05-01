@@ -1,4 +1,4 @@
-{r}←{cbinfo} GetFacts (cid facts);m;ns
+{r}←{cbinfo} GetFacts (cid facts);m;ns;poll;op;int
 :If 0=⎕NC 'cbinfo' ⋄ cbinfo←'' 0 ⋄ :EndIf ⍝ do not call back
 
 facts←,⊆facts
@@ -8,8 +8,13 @@ facts,←(0=≢facts)/allfacts
 :EndIf
 
 (ns←⎕NS '').Facts←facts
-ns.Poll←2⊃cbinfo
-r←cbinfo SendWait cid ('GetFacts' ns)
-:If (0=≢cbinfo) ⍝ No callback fn
+:If poll←0≠int←2⊃cbinfo
+    ns.Interval←int⊣op←'PollFacts'
+:Else
+    op←'GetFacts'
+:EndIf
+
+r←cbinfo SendWait cid (op ns)
+:If ~poll
     r←r[2].Facts
 :EndIf

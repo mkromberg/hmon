@@ -1,13 +1,11 @@
  {ok}←Init
- ⍝ Example: init '127.0.0.1' 7502 '/log/file/name'
 
-
- allfacts←'Host' 'AccountInformation' 'Workspace'
- allsubs←'WorkspaceCompaction' 'WorkspaceResize' 'All'
+ allfacts←'Host' 'AccountInformation' 'Workspace' 'Threads' 'SuspendedThreads' 'ThreadCount'
+ allsubs←'WorkspaceCompaction' 'WorkspaceResize' 'UntrappedSignal' 'TrappedSignal' 'ThreadSwitch' 'All'
  listener←''        ⍝ not listening (yet)
  onconnection←''    ⍝ nothing specified to do on connection
 
- logging←1
+ logging←0
  uidcnt←cidcnt←0    ⍝ request and connection counters
  monitortid←¯1      ⍝ queue monitor thread not running
  conns←0 4⍴0        ⍝ id connection host port
@@ -21,7 +19,7 @@
  :EndIf
  iConga←Conga.Init'HMONCLIENT'
  {}iConga.SetProp'' 'EventMode' 1
- magic←iConga.Magic 'RIDE' ⍝ /// will become HMON
+ magic←iConga.Magic 'HMON'
 
  :If 0≠logtn←2=⎕NC'logfile'
      :Trap 0

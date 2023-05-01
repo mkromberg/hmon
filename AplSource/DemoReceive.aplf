@@ -1,6 +1,5 @@
- DemoReceive arg;UID;Facts;data;TS;event;ts;cid;wsused;cpuused;compactions;ai;ws;line;fn;code;txt
+ DemoReceive arg;UID;Facts;data;TS;event;ts;cid;wsused;cpuused;compactions;ai;ws;line;fn;code;txt;threadcount
  ⍝ Receive all types of callbacks
-
  (event data)←arg
  ts←1 ⎕DT'J'
  cid←2 1⊃⎕VFI UID←data.UID
@@ -11,14 +10,16 @@
  :Select event
 
  :Case 'Notification'
-     Log UID,,' Notification ',data.Event
+     ⎕←UID,,' Notification: ',data.Event.Name
 
  :Case 'Facts'
-     (ws ai)←data.(Facts[Facts.Name⍳'Workspace' 'AccountInformation'].Value)
+     ⎕←⎕JSON data
+     (ws ai threadcount)←data.(Facts[Facts.Name⍳'Workspace' 'AccountInformation' 'ThreadCount'].Value)
      (wsused compactions)←ws.(Used Compactions)
      cpuused←ai.ComputeTime
-     DemoUpdate cid('ts' 'wsused' 'cpuused' 'compactions')(ts wsused cpuused compactions)
-     'DemoReceive' 2000 GetLastKnownState cid ⍝ Request last known state
+     ⎕←⎕JSON threadcount
+     DemoUpdate cid('ts' 'wsused' 'cpuused' 'compactions' 'threads' 'suspended')(ts wsused cpuused compactions,threadcount.(Total Suspended))
+ ⍝   'DemoReceive' 2000 GetLastKnownState cid ⍝ Request last known state
 
  :Case 'LastKnownState'
      :If 0≠data.⎕NC'Activity'
@@ -26,4 +27,8 @@
          txt←(⍕code),': ',fn,'[',(⍕line),']'
          DemoUpdate cid('ts' 'laststate')(ts txt)
      :EndIf
+
+ :Else
+     ⎕←event (⎕JSON data)
+     ⍝ We do nothing right now
  :EndSelect
