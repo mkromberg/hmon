@@ -1,24 +1,31 @@
- DemoReceive arg;UID;Facts;data;TS;event;ts;cid;wsused;cpuused;compactions;ai;ws;line;fn;code;txt;threadcount
+ DemoReceive arg;UID;Facts;data;TS;event;ts;cid;wsused;cpuused;compactions;ai;ws;line;fn;code;txt;threadcount;f;z;uid;m
  ⍝ Receive all types of callbacks
  (event data)←arg
  ts←1 ⎕DT'J'
  cid←2 1⊃⎕VFI UID←data.UID
  :If (≢demodata)≠≢conns
-     demodata←(demodata[;1]∊conns[;1])⌿demodata
-  :EndIf
+     demodata←(m←demodata[;1]∊conns[;1])⌿demodata
+     hmongrid.(Values CellTypes)←m∘⌿¨hmongrid.(Values CellTypes)
+ :EndIf
 
  :Select event
 
  :Case 'Notification'
-     ⎕←UID,,' Notification: ',data.Event.Name
+     :If 'UntrappedSignal'≡data.Event.Name
+        uid←(2⊃⎕VFI UID)-0 1 ⍝ /// temporary fix while we wait for a better way to ask for immediate push
+        z←cid Send  '["PollFacts",{"Interval":0,"UID":"',(⍕uid),'"}]' ⍝ Request immediate push of Polling data
+     :EndIf
 
  :Case 'Facts'
-     ⎕←⎕JSON data
-     (ws ai threadcount)←data.(Facts[Facts.Name⍳'Workspace' 'AccountInformation' 'ThreadCount'].Value)
-     (wsused compactions)←ws.(Used Compactions)
-     cpuused←ai.ComputeTime
-     ⎕←⎕JSON threadcount
-     DemoUpdate cid('ts' 'wsused' 'cpuused' 'compactions' 'threads' 'suspended')(ts wsused cpuused compactions,threadcount.(Total Suspended))
+      :If ∧/(data.f←'Workspace' 'AccountInformation' 'ThreadCount')∊data.Facts.Name ⍝ Standard poll data
+         (ws ai threadcount)←data.(Facts[Facts.Name⍳f].Value)
+         (wsused compactions)←ws.(Used Compactions)
+         cpuused←ai.ComputeTime
+         DemoUpdate cid('ts' 'ws' 'cpu' 'compactions' 'threads' 'suspended')(ts wsused cpuused compactions,threadcount.(Total Suspended))
+     :Else
+         ∘∘∘
+         ⎕←'Unexpected facts received: ',⎕JSON data
+     :EndIf
  ⍝   'DemoReceive' 2000 GetLastKnownState cid ⍝ Request last known state
 
  :Case 'LastKnownState'
@@ -28,7 +35,11 @@
          DemoUpdate cid('ts' 'laststate')(ts txt)
      :EndIf
 
+ :Case 'Subscribed'
+     subs←↑data.Events.(Name Value)
+     ⎕←subs
+
  :Else
-     ⎕←event (⎕JSON data)
+     ⎕←event(⎕JSON data)
      ⍝ We do nothing right now
  :EndSelect

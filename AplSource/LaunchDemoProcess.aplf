@@ -1,0 +1,3 @@
+LaunchDemoProcess;folder
+folder←⊃⎕SE.Link.Links.dir
+⎕CMD  ('dyalog LOAD="',folder,'\DemoApplication.aplf" RIDE_INIT="SERVE::0"') 'Normal'

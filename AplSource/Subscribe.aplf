@@ -9,6 +9,6 @@
  ns←⎕NS''
  ns.Events←facts
  r←(fn 0) SendWait cid('Subscribe'ns)
- :If 'Subscriptions'≡⊃r
+ :If 'Subscribed'≡⊃r
      r←r[2]
  :EndIf

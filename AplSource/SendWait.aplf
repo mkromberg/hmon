@@ -12,8 +12,9 @@
      :Else
          uid←0 ⋄ payload←u
      :EndIf
+     queue←(queue∨.≢cid uid fn)⌿queue ⍝ avoid duplicates
      'Queue is full'⎕SIGNAL(uid>999)/11
-     queue⍪←cid uid fn ⍝ Don't use callback fn for result of subscribe
+     queue←cid uid fn⍪queue ⍝ lifo
  :EndHold
 
  :If 0≠⊃z←cid Send payload
@@ -21,7 +22,7 @@
      ∘∘∘
  :EndIf
 
- :If 0=≢fn ⍝ No callback function
+ :If (0=≢fn)∨'Subscribe'≡⊃u ⍝ No callback function - or subscribe which gets both a result AND a subscription
      r←cid Wait uid
  :Else
      r←runmonitor ⍬

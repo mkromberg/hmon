@@ -1,17 +1,22 @@
  DemoApplication dummy;framework;z;a
- ⎕PROFILE'start' 'coverage' ⋄ 112⌶1 ⍝ Enable "breadcrumbs"
- ⍝ (This will be easier in the final v19.0)
+ 'POLL:localhost:7000' (112⌶) 2 1 ⍝ 2=Full access to info, 1 collect "breadcrumbs" for "Last Status"
+
+ ⎕FX 'LOOP delay;z' 'z←⎕DL delay' '→1'
+ LOOP&1 ⍝ Launch a thread to keep things ticking over
 
  framework←2=⊃2250⌶⍬
 
  ⎕USING←',System.Runtime',framework/'.dll'
  :Repeat
+     ⎕DL 5
      :Select ?3
      :Case 1
-         1÷0
-         ⍝ (System.Threading.Tasks.Task.Delay 2000).Wait ⍬
+         ⎕FX 'FOO' '1÷0'
+         FOO
      :Case 2
          z←⎕DL 2
+     :Case 3
+         (System.Threading.Tasks.Task.Delay 2000).Wait ⍬
      :Case 3
          z←+/10000000?10000000
      :Case 4

@@ -12,4 +12,4 @@ con←uid=0                  ⍝ Not an identified transation?
 
 runmonitor ⍬
 r←⊃⎕TGET type GetToken id
-Log 'GET ',(⍕id),': ',r
+Log 'GET ',(⍕cid),': ',{0::,⍕r ⋄ 1 ⎕JSON r} r

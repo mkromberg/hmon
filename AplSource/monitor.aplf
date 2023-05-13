@@ -1,4 +1,4 @@
- monitor listen;z;rc;con;event;data;ns;i;cid;uid;type;tkn;fn;m;removed;done;cb;port;host
+ monitor listen;z;rc;con;event;data;ns;i;cid;uid;type;tkn;fn;m;removed;done;cb;port;host;json
  ⍝ While there is anything in the queue, monitor Conga messages
  ⍝ and release functions waiting on ⎕TPUT
 
@@ -16,7 +16,7 @@
 
          :Case 'Block'
              :If (≢conns)<i←conns[;2]⍳⊂con
-                 Log'Message received on unexpected connection'
+                 Log'*** Message received on unexpected connection'
                  Log'===> ',,⍕z
                  :Continue
              :Else
@@ -24,8 +24,10 @@
              :EndIf
 
              uid←0
-             :Trap 11 ⍝ Might be handshake and not JSON data
-                 data←0 ⎕JSON data
+             :Trap 6 11 ⍝ Might be handshake and not JSON data, or JSON data with no UID
+                 json←'UTF-8' ⎕UCS ⎕UCS data
+                 data←0 ⎕JSON json
+                 Log 'GET ',(⍕data[2].UID),': ',json
                  tkn←'uid'GetToken uid←2⊃2⊃⎕VFI data[2].UID
              :Else
                  tkn←'cid'GetToken cid
@@ -34,15 +36,15 @@
              :Hold 'hmon'
                  cb←0
                  :If (≢queue)<i←queue[;1 2]⍳cid uid
-                     Log'Unqueued message received'
+                     Log'*** Unqueued message received'
                      Log'===> ',,⍕z
                      :Continue
-                 :ElseIf cb←(0≠≢fn←⊃queue[i;3])∧'Subscribe'≢⊃data ⍝ Callback fn (ignore for "Subscribe" call)
+                 :ElseIf cb←(0≠≢fn←⊃queue[i;3])∧'Subscribed'≢⊃data ⍝ Callback fn (ignore for "Subscribe" call)
                      (⍎fn)&data            ⍝ Run it in a separate thread
                  :EndIf
 
                  :If done←80≠⎕DR data      ⍝ If namespace, check polling state
-                     done←data[2].{6::0 ⋄ Poll=0}⍬  ⍝ Polling done
+                     done←data[2].{6::0 ⋄ Interval=0}⍬  ⍝ Polling done
                  :EndIf
                  :If done∨0=≢fn            ⍝   ... or no callback fn
                      queue←(i≠⍳≢queue)⌿queue
@@ -75,7 +77,7 @@
          :EndSelect
 
      :Else
-         Log'Conga.Wait failed: ',⍕z
+         Log'*** Conga.Wait failed: ',⍕z
          ∘∘∘
      :EndIf
  :EndWhile
