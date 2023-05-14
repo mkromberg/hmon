@@ -1,4 +1,4 @@
- DemoCellDown arg;row;cid;z;hdr;host;threads;address
+ DemoCellDown arg;row;cid;z;hdr;host;threads;address;port;data
  row←7⊃arg
  →(row∊⍳≢demodata)↓0
  (cid address)←demodata[row;democols⍳'id' 'address']
@@ -6,13 +6,15 @@
 
  :If cid∊conns[;1]
      (threads host)←GetFacts cid ('Threads' 'Host')
-     port←⊃host.Value.RIDE.(Port6 Port4)~0
+     port←{6::0 ⋄ ⊃⍵.(Port6 Port4)~0}host.Value.RIDE
+
      hmontxt.Text←hdr
      hmonstack.Text←2 0↓⍕'TID' '' 'Stack'⍪(⊂'')⍪{⍵[⍋⍵[;1];]}↑threads.Values.(('&',⍕Tid) (' *'[1+Suspended]) (⍪Stack.Description,⊂''))
      :If 0≠port
-         hmonride.(Visible Active Data)←1 1 ((⊃conns[conns[;1]⍳cid;3]),':',⍕port)
+         data←(⊃conns[conns[;1]⍳cid;3]),':',⍕port
+         hmonride.(Visible Active Data Caption)←1 1 data ('RIDE to ',data)
      :Else
-         hmonride.Active←0
+         hmonride.Visible←0
      :EndIf
      hmongrid.CellTypes[;1]←1+2×cid=⍳≢conns
  :Else

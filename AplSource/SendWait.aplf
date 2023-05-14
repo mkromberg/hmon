@@ -1,9 +1,13 @@
- r←{cbinfo}SendWait(cid u);i;uid;payload;z;fn;poll
+ r←{cbinfo}SendWait(cid u);i;uid;payload;z;fn;poll;retried
  :If 0=⎕NC'cbinfo' ⋄ cbinfo←'' 0 ⋄ :EndIf
  (fn poll)←cbinfo
  :If 0≠≢fn
      ('Callback function ',fn,' not found')⎕SIGNAL(3≠⎕NC fn)/6
  :EndIf
+
+ retried←0
+
+RETRY:
 
  :Hold 'hmon'
      :If (2=≢u)∧326=⎕DR u
@@ -23,7 +27,16 @@
  :EndIf
 
  :If (0=≢fn)∨'Subscribe'≡⊃u ⍝ No callback function - or subscribe which gets both a result AND a subscription
-     r←cid Wait uid
+     :Trap 1006
+          r←cid Wait uid
+     :Else
+          :If retried<5
+             retried+←1
+             →RETRY
+          :Else
+             ∘∘∘
+          :EndIf
+     :EndTrap
  :Else
      r←runmonitor ⍬
  :EndIf
