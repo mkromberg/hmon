@@ -6,20 +6,25 @@ demoprotos←  0    0         ''    0    0            ''         0           0
 demodata←(0,≢democols)⍴demoprotos
 widths←2×30 60 50 65 65 70 50 65
 
-hmonform←⎕NEW 'Form' (('Coord' 'Pixel')('Size' (size←800,22++/widths))('Font' ('Calibri' 18)))
+hmonform←⎕NEW 'Form' (('Coord' 'Pixel')('Size' (size←800,22++/widths))('Font' ('Calibri' 20)))
+hmonform.onClose←'DemoClose'
 hmongrid←hmonform.⎕NEW 'Grid' (('Posn' (10 10))('Size' (sz←size-630 20))('Values' demodata)('ColTitles' democols)('CellTypes' (1⍨¨demodata)))
 hmongrid.ColTitles[4 5]←'cpu(s)' 'ws(Mb)'
 hmongrid.(TitleWidth CellWidths)←0 widths
-hmongrid.BCol←(255 255 255)(255 0 0)
-hmongrid.FCol←(0 0 0)(255 255 255)
+hmongrid.BCol←(255 255 255)(255 0 0)(196 196 255)
+hmongrid.FCol←(0 0 0)(255 255 255)(255 255 255)
 hmongrid.ColTitleAlign←⊂'Left' ⍝ 'Right' 'Left' 'Right' 'Centre' 'Centre' 'Left' 'Left' 'Left'
 hmongrid.onCellDown←'DemoCellDown'
-hmonride←hmonform.⎕NEW 'Button' (('Caption' 'Connect RIDE')('Posn' ((20+⊃sz),¯110+2⊃size))('Size' (⍬ 100))('Visible' 0)
+hmonride←hmonform.⎕NEW 'Button' (('Caption' 'Connect RIDE')('Posn' ((20+⊃sz),¯110+2⊃size))('Size' (⍬ 100))('Visible' 0))
 hmonride.onSelect←'DemoRIDEConnect'
-hmonview←hmonform.⎕NEW 'Button' (('Caption' 'View Log')('Posn' ((300+⊃sz),10))('Size' (⍬ 100))('Style' 'Check')('State' 1))
+hmonview←hmonform.⎕NEW 'Button' (('Caption' 'View Log')('Posn' ((300+⊃sz),10))('Size' (⍬ 100))('Style' 'Check')('State' 0))
 hmonview.onSelect←'DemoView'
-hmontxt←hmonform.⎕NEW 'Text' (('Text' 'Click on a row to see more')('Points' ((20+⊃sz) 10)))
+DemoView hmonview
+hmontxt←hmonform.⎕NEW 'Text' (('Text' 'Click on a row to see more')('Points' ((20+⊃sz) 10))('Font' ('Calibri' 24 0 0 0 600)))
+hmonstack←hmonform.⎕NEW 'Text' (('Text' '')('Font' ('APL385 Unicode' 16))('Points' ((60+⊃sz) 10)))
+
 hmonlog←hmonform.⎕NEW 'Text' (('Text' (20↑⊂'Log messages will appear here'))('Points' ((320+(16×⍳20)+⊃sz) 10)))
+hmonlog.onMouseDown←'DemoViewLog'
 
 Init
 onconnection←'DemoConnect'

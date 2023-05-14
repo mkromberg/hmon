@@ -1,17 +1,21 @@
- DemoCellDown arg;row;cid;z;hdr;host;threads
+ DemoCellDown arg;row;cid;z;hdr;host;threads;address
  row←7⊃arg
- cid←demodata[row;democols⍳⊂'id']
- hdr←'State of process ',(⍕cid),' at time ',(⊃'hh:mm:ss'(1200⌶)1 ⎕DT'J'),':'
+ →(row∊⍳≢demodata)↓0
+ (cid address)←demodata[row;democols⍳'id' 'address']
+ hdr←'Process #',(⍕cid),' (@',address,') at time ',(⊃'hh:mm:ss'(1200⌶)1 ⎕DT'J'),':'
 
  :If cid∊conns[;1]
      (threads host)←GetFacts cid ('Threads' 'Host')
      port←⊃host.Value.RIDE.(Port6 Port4)~0
-     hmontxt.Text←⍕⍪'' hdr '',⊂'TID' 'Suspended' 'Stack'⍪(⊂'')⍪{⍵[⍋⍵[;1];]}↑threads.Values.(Tid (' *'[1+Suspended]) (⍪Stack.Description,⊂''))
+     hmontxt.Text←hdr
+     hmonstack.Text←2 0↓⍕'TID' '' 'Stack'⍪(⊂'')⍪{⍵[⍋⍵[;1];]}↑threads.Values.(('&',⍕Tid) (' *'[1+Suspended]) (⍪Stack.Description,⊂''))
      :If 0≠port
          hmonride.(Visible Active Data)←1 1 ((⊃conns[conns[;1]⍳cid;3]),':',⍕port)
      :Else
          hmonride.Active←0
      :EndIf
+     hmongrid.CellTypes[;1]←1+2×cid=⍳≢conns
  :Else
      hmontxt.Text←'(Process not found)'
+     hmonstack.Text←''
  :EndIf

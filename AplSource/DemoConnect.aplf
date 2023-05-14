@@ -6,7 +6,7 @@ DemoConnect cid;i;z
     demodata⍪←demoprotos
 :EndIf
 
-demodata[i;democols⍳'id' 'address']←{⍵[1],(⊂(2⊃⍵),':',3⊃⍵)}conns[conns[;1]⍳cid;1 3 4]
+demodata[i;democols⍳'id' 'address']←{⍵[1],(⊂(2⊃⍵),':',⍕3⊃⍵)}conns[conns[;1]⍳cid;1 3 4]
 hmongrid.(Values CellTypes)←demodata (hmongrid.CellTypes⍪1)
 
 ⍝ Now set up the subscriptions

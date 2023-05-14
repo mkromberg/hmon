@@ -27,7 +27,7 @@
              :Trap 6 11 ⍝ Might be handshake and not JSON data, or JSON data with no UID
                  json←'UTF-8' ⎕UCS ⎕UCS data
                  data←0 ⎕JSON json
-                 Log 'GET ',(⍕data[2].UID),': ',json
+                 Log 'GET ',(⍕cid),': ',json
                  tkn←'uid'GetToken uid←2⊃2⊃⎕VFI data[2].UID
              :Else
                  tkn←'cid'GetToken cid
@@ -64,8 +64,9 @@
                   cid←(conns[;1],¯1)[conns[;2]⍳⊂con]
                   removed←(m←cid=queue[;1])⌿queue
                   :If cid≠¯1
-                     conns←(conns[;1]≠cid)⌿conns
                      queue←(~m)⌿queue
+                     conns←(m←conns[;1]≠cid)⌿conns
+                     hmongrid.(Values CellTypes)←m∘⌿¨hmongrid.(Values CellTypes)
                      Log'===> ',(⍕≢removed),' queue items removed'
                  :EndIf
              :EndHold

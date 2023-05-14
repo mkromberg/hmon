@@ -17,14 +17,14 @@
      :EndIf
 
  :Case 'Facts'
-      :If ∧/(data.f←'Workspace' 'AccountInformation' 'ThreadCount')∊data.Facts.Name ⍝ Standard poll data
+      :If 0≠≢data.Facts
+      :AndIf ∧/(data.f←'Workspace' 'AccountInformation' 'ThreadCount')∊data.Facts.Name ⍝ Standard poll data
          (ws ai threadcount)←data.(Facts[Facts.Name⍳f].Value)
          (wsused compactions)←ws.(Used Compactions)
          cpuused←ai.ComputeTime
          DemoUpdate cid('ts' 'ws' 'cpu' 'compactions' 'threads' 'suspended')(ts wsused cpuused compactions,threadcount.(Total Suspended))
      :Else
-         ∘∘∘
-         ⎕←'Unexpected facts received: ',⎕JSON data
+         Log 'Unexpected facts received: ',⎕JSON data
      :EndIf
  ⍝   'DemoReceive' 2000 GetLastKnownState cid ⍝ Request last known state
 
