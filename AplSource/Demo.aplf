@@ -1,15 +1,14 @@
 Demo;size;widths;sz
 ⍝ HMON demo application
 
-democols  ←'id' 'ts' 'address' 'cpu' 'ws' 'compactions' 'threads' 'suspended'
+democols  ←'id' 'ts' 'address' 'cpu(s)' 'ws(Mb)' 'compactions' 'threads' 'suspended'
 demoprotos←  0    0         ''    0    0            ''         0           0
 demodata←(0,≢democols)⍴demoprotos
-widths←2×30 60 50 65 65 70 50 65
+widths←60 120 100 130 130 140 100 130
 
-hmonform←⎕NEW 'Form' (('Coord' 'Pixel')('Size' (size←800,22++/widths))('Font' ('Calibri' 20)))
+hmonform←⎕NEW 'Form' (('Caption' 'Health Monitor')('Coord' 'Pixel')('Size' (size←800,22++/widths))('Font' ('Calibri' 20)))
 hmonform.onClose←'DemoClose'
 hmongrid←hmonform.⎕NEW 'Grid' (('Posn' (10 10))('Size' (sz←size-630 20))('Values' demodata)('ColTitles' democols)('CellTypes' (1⍨¨demodata)))
-hmongrid.ColTitles[4 5]←'cpu(s)' 'ws(Mb)'
 hmongrid.(TitleWidth CellWidths)←0 widths
 hmongrid.BCol←(255 255 255)(255 0 0)(196 196 255)
 hmongrid.FCol←(0 0 0)(255 255 255)(255 255 255)

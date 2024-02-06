@@ -1,4 +1,6 @@
 LaunchRide address;⎕USING
+folder←⊃⎕SE.Link.Links.dir
+user←1↓⊃2⌷folder⊂⍨'/'⍷folder
 ⎕USING←''
 System.Environment.SetEnvironmentVariable'RIDE_CONNECT' address
-⎕CMD 'C:\Users\mkrom\AppData\Local\Programs\Dyalog\Ride-4.4\Ride-4.4.exe' 'Normal'
+⎕CMD ('C:\Users\',user,'\AppData\Local\Programs\Dyalog\Ride-4.4\Ride-4.4.exe') 'Normal'

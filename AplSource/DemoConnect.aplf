@@ -10,5 +10,5 @@ demodata[i;democols⍳'id' 'address']←{⍵[1],(⊂(2⊃⍵),':',⍕3⊃⍵)}co
 hmongrid.(Values CellTypes)←demodata (hmongrid.CellTypes⍪1)
 
 ⍝ Now set up the subscriptions
-'DemoReceive' 5000 GetFacts cid ('AccountInformation' 'Workspace' 'ThreadCount' 'Host')
+'DemoReceive' 5000 GetFacts cid allfacts~'Threads' 'SuspendedThreads'
 Subscribe cid ('WorkspaceCompaction' 'UntrappedSignal') 'DemoReceive'

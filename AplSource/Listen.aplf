@@ -3,7 +3,7 @@ r←Listen (host port);d
  'Cannot start listener - monitor thread already running' ⎕SIGNAL (monitortid∊⎕TNUMS)/11
 
  d←iConga.Srv '' host port 'BlkText' 32768 ('Magic' magic)
- :If (⊃d)≢0
+ :If 0≢⊃d
      ('Unable to start listener on ',host,':',(⍕port),' - ',3⊃d) ⎕SIGNAL 11
  :EndIf
  listener←2⊃d
