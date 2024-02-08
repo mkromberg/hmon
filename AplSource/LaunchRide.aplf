@@ -1,6 +1,7 @@
 LaunchRide address;⎕USING
-folder←⊃⎕SE.Link.Links.dir
-user←1↓⊃2⌷folder⊂⍨'/'⍷folder
 ⎕USING←''
+:If 0=⎕NC 'RIDE_PATH'
+    RIDE_PATH←'C:\Program Files\Dyalog\Dyalog APL-64 19.0 Unicode\dyalog.exe'
+:EndIf
 System.Environment.SetEnvironmentVariable'RIDE_CONNECT' address
-⎕CMD ('C:\Users\',user,'\AppData\Local\Programs\Dyalog\Ride-4.4\Ride-4.4.exe') 'Normal'
+⎕CMD (RIDE_PATH) 'Normal'
