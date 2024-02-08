@@ -1,48 +1,34 @@
-# Implementation guide for a HMon Client and Application
+# HMON Usage Guide
 
-This document is a standalone documentation for what is needed to make use of Dyalogs' Health Monitor protocol. However, this document takes offspring in the Demo application developed by Morten Krumberg and any code examples will be referencing this.
+This document is intended to provide guidance on the use of Dyalog's Health Monitor (HMON) protocol. The document makes reference to a demonstration application which uses the protocol to implement a monitor for multiple running APLapplications; the code examples in this document are taken from that, the full source code can be found in the [APLSource folder](https://github.com/Dyalog/HMon/blob/main/APLSource.
 
-This document will not go into detail about the protocol used, instead we refer to the official documentation for the protocol, which can be found [here](https://github.com/Dyalog/HMon/blob/main/docs/HMON.md). 
+This document does not go into detail about the protocol itself, instead we refer to the [official documentation for the protocol](https://github.com/Dyalog/HMon/blob/main/docs/HMON_Protocol.md). 
 
-It is worth mentioning that the code example has reversed the roles of the Client and Application it references to the documentation. 
 
-<table>
-<tr>
-    <th>Expression</th>
-    <th>Meaning</th>
-</tr>
-<tr>
-    <td>Client</td>
-    <td>Health Monitorer</td>
-</tr>
-<tr>
-    <td>Application</td>
-    <td>The interpreter running the program of interest</td>
-</tr>
-</table>
+## Configuring the Interface
 
-## Configuring the Application
+Configuring the HMON interface involves choosing the Connection Mode, Access Levels, Event Gathering Levels, and whether the Application should respond to high-priority request messages.
 
-Configuring the application involves 3 choices, namely choosing Access Levels, Event Gathering Levels, and if the Application should respond to high-priority request messages.
-
-If we want to allow for high-priority messages to be answered when received independent of the application being busy, we have to run: 
-
-```apl
-⎕PROFILE 'start' 'coverage'
-```
-
-before starting the application.
-
-The access and event gathering levels we can set while the application is running or when using ``112 ⌶`` to initiate the connection. 
+The connection modes, access and event gathering levels can be set by the application which wants to allow monitoring, using ``112⌶`` to initiate the connection.
 
 ```apl
 ⍝ AplSource/DemoApplication.aplf
 [2] 'POLL:localhost:7000'(112⌶)2 1
 ```
 
-Take notes of the ``POLL`` at the beginning of the character vector given as the left input to ``112⌶``, this contrasts with the ``SERVE`` command as described in the documentation. This means the application must connect to the client rather than the other way around. 
+See the [protoco documentl](https://github.com/Dyalog/HMon/blob/main/docs/HMON_Protocol.md) for a detailed description of the right argument. In this example, we enable full access to monitoring information (2) and also ask the interpreter to gather information that will support the ```GetLaskKnownState``` request (1).
 
-At current writing, if the application (or rather the interpreter) stands IDLE the communication would stand IDLE as well. The workaround done in the Demo is to have a thread looping with a delay function:
+The left argument has the same format and meaning as the [RIDE_INIT environment setting](https://help.dyalog.com/18.0/Content/UserGuide/Installation%20and%20Configuration/Configuration%20Parameters/RIDE_Init.htm). 
+
+Note that the demonstration client application uses ``POLL``, while the protocol document suggests ``SERVE``. This is is because the easiest way to experiment with the protocol is to have a single interpreter act as the server which you can make a connection to. However, the demo application acts as a monitor for multiple APL interpreters. In this case it is more practical for the client to start a listener (in this case on port 7000) and have each interpreter that wants to be monitored attempt to connect to this port - retrying at regular intervals if the monitor is not present. This allows application processes to come and go - and even allows the monitor to be restarted, if it disappears and comes back each monitored APL process will reconnect to it within a short period of time.
+
+Note that in the current implementation, it is not sufficient to request state information using ``112⌶``, the application must also enabled 'coverage' monitoring using ```⎕PROFILE```.
+
+```apl
+⎕PROFILE 'start' 'coverage'
+```
+
+In the current implementation, HMON only processes requests between lines of APL code. If the application is completely idle, HMON will not respond to anything other than high priority requests. The workaround done in the demo client is to have a thread looping with a delay function:
 
 ```apl
 ⍝ AplSource/DemoApplication.aplf
@@ -50,21 +36,30 @@ At current writing, if the application (or rather the interpreter) stands IDLE t
 [5] LOOP&1
 ```
 
-## Configuring the Client
+## Connecting Client to the monitored Application(s)
 
-Configuration of a client depends greatly on what is needed, code standards, and implementation design. In this section the *must have* functionality will be described along with the design choices taken in the specific case of the demo. Therefore will we start this section by giving a short introduction on how to run the Demo. (Feel free to skip over this subsection)
+A client of HMON must establish a Conga connection to the interpreter which is to be monitored, using using ```BlkText``` mode, as described in the [protocol documentation](https://github.com/Dyalog/HMon/blob/main/docs/HMON_Protocol.md). As previously mentioned, both sides can initiate the connection, depending on the requirements of the application. The sample client assumes that the goal is to monitor multiple APL interpreters from a single point.
+
+In this section we describe the design choices taken in the demo client.
 
 ### Running the demo application and client
 
-To start the client simply link and enter the namespace of the demo, and run the function ``Demo`` with out any arguments. 
+Note that the demonstration client requires Dyalog APL for Microsoft Windows (but the monitored applications can run on any platform).
 
-Open a second interpreter, link and enter namespace again. From here run ``LaunchDemoProcess 0``. The right argument allows for a Ride connection when set to 1. However at  current writing the path the client uses to open Ride is hardcoded and often not able to find the executable to enable this.
+To start the client, link the APLSource folder and run the function ``Demo`` with out any arguments. For example, if you checked the repository out to ```/tmp/hmon```:
+
+```
+      ]link.create # /tmp/hmon/APLSource
+      Demo
+```
+
+To create some simple processes that you can monitor, run ``LaunchDemoProcess 0``, which starts a new APL process to run the function ```DemoApplication```. The right argument allows for a Ride connection when set to 1. You may need to edit the function ```LaunchRide``` to change the path to your RIDE executable.
 
 Hopefully you can get an idea of what design choices have been made by playing a bit around with this Demo.
 
-### Necessary setup to communicate with protocol
+### Necessary Setup
 
-Firstly we need to set up the protocol on the client side. Since HMon is a monitoring protocol, it only provides functionality on the application side, it is our own responsibility to send messages that it can understand, and answer. The demo sets up the IConga protocol:
+Firstly we need to set up the protocol on the client side. The demo copies the Conga class from the distributed conga workspace, creates an instance of the Conga protocol, and computes the magic number used for the ```BlkText``` protocol:
 
 ```apl
 ⍝ AplSource/Init.aplf
@@ -76,7 +71,7 @@ Firstly we need to set up the protocol on the client side. Since HMon is a monit
 [21] magic←iConga.Magic 'HMON'
 ```
 
-Depending on how you set your client up you would either want to set up a Conga server or connect to all the applications. The Demo is taking the first approach:
+The Demo creates a listener that all monitored applications can connect to, and runs the monitor function on a new thread.
 
 ```apl
 ⍝ AplSource/Listen.aplf
@@ -88,9 +83,7 @@ Depending on how you set your client up you would either want to set up a Conga 
 [11] monitortid←monitor&1
 ```
 
-The monitor function is the function which handles all the incoming communication, which has not been explicit called from somewhere else. `monitor` can be seen below.
-
-This concludes the strictly necessary functionality.
+The ```monitor``` function handles new connections and each incoming block:
 
 ```apl
 [ 0]monitor listen;z;rc;con;event;data;ns;i;cid;uid;type;tkn;fn;m;removed;done;cb;port;host;json
